@@ -34,8 +34,8 @@ ArrivalTimesSorted1 <- ArrivalTimesSorted
 pois <- numeric()
 pois1 <- numeric()
 for (i in 1:(length(ArrivalTimesSorted) - 2)) {
-  pois[i] <- (rpois(1, CheckoutTime) / 60)
-  pois1[i] <- (rpois(1, CheckoutTime) / 60)
+  pois[i] <- (rpois(1, CheckoutTime)) / 60
+  pois1[i] <- (rpois(1, CheckoutTime)) / 60
   if (ArrivalTimesSorted[i + 2] <= (min(ArrivalTimesSorted[i] +
     pois[i], ArrivalTimesSorted[i + 1]) + pois[i]))
     {ArrivalTimesSorted[i + 2] <- (min(ArrivalTimesSorted[i] +
@@ -82,9 +82,14 @@ ArrivalTimesSorted1 <- ArrivalTimesSorted
 #replace the "rpois" with desired Distribution and Parameters
 pois <- numeric()
 pois1 <- numeric()
+for (i in 1) {
+  pois[i] <- ((rpois(1, CheckoutTime)) / 60)
+  if (ArrivalTimesSorted[i + 1] <= ArrivalTimesSorted[i] + pois[i])
+    {ArrivalTimesSorted[i + 1] <- ArrivalTimesSorted[i] + pois[i]}
+}
 for (i in 1:(length(ArrivalTimesSorted) - 2)) {
-  pois[i] <- (rpois(1, CheckoutTime) / 60)
-  pois1[i] <- (rpois(1, CheckoutTime) / 60)
+  pois[i] <- ((rpois(1, CheckoutTime)) / 60)
+  pois1[i] <- ((rpois(1, CheckoutTime)) / 60)
   if (ArrivalTimesSorted[i + 1] <= ArrivalTimesSorted[i] + pois[i])
     {ArrivalTimesSorted[i + 1] <- ArrivalTimesSorted[i] + pois[i]}
   if (ArrivalTimesSorted[i + 2] <= ArrivalTimesSorted[i + 1] + pois1[i])
