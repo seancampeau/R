@@ -43,8 +43,8 @@ for (n in 1:7) {
         }
     WaitingTime <- ArrivalTimesSorted - ServeTime
     MeanWaitingTime[n] <- mean(WaitingTime) * 60
+    }
   }
-}
 
 #7-Day Average Waiting Time
 mean(MeanWaitingTime)
@@ -88,7 +88,7 @@ for (n in 1:7) {
     if (ArrivalTimesSorted[i + 1] <= ArrivalTimesSorted[i] + pois[i]) {
       ArrivalTimesSorted[i + 1] <- ArrivalTimesSorted[i] + pois[i]
       }
-  }
+    }
   for (i in 1:(length(ArrivalTimesSorted) - 2)) {
     pois[i] <- ((rpois(1, CheckoutTime)) / 60)
     pois1[i] <- ((rpois(1, CheckoutTime)) / 60)
@@ -100,6 +100,6 @@ for (n in 1:7) {
       }
     WaitingTime <- ArrivalTimesSorted - ServeTime
     MeanWaitingTime[n] <- mean(WaitingTime) * 60
+    }
   }
-}
 mean(MeanWaitingTime)
