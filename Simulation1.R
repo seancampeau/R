@@ -26,7 +26,7 @@ for (n in 1:7) {
 #Generate People Who Wait
   ArrivalTimesSorted <- numeric()
   ArrivalTimesSorted <- sort(ArrivalTimes, decreasing = FALSE)
-  ServeTime <- ArrivalTimesSorted
+  ArrivalTimesSortedNew <- ArrivalTimesSorted
 
 #Generate Mean Waiting Time 
 #To Change Checkout Time Distribution,
@@ -41,7 +41,7 @@ for (n in 1:7) {
         ArrivalTimesSorted[i + 2] <- (min(ArrivalTimesSorted[i] +
           pois[i], ArrivalTimesSorted[i + 1]) + pois1[i])
         }
-    WaitingTime <- ArrivalTimesSorted - ServeTime
+    WaitingTime <- ArrivalTimesSorted - ArrivalTimesSortedNew
     MeanWaitingTime[n] <- mean(WaitingTime) * 60
     }
   }
@@ -76,7 +76,7 @@ for (n in 1:7) {
 #Generate People Who Wait
   ArrivalTimesSorted <- numeric()
   ArrivalTimesSorted <- sort(ArrivalTimes, decreasing = FALSE)
-  ServeTime <- ArrivalTimesSorted
+  ArrivalTimesSortedNew <- ArrivalTimesSorted
 
 #Generate Mean Waiting Time 
 #To Change Checkout Time Distribution,
@@ -98,7 +98,7 @@ for (n in 1:7) {
     if (ArrivalTimesSorted[i + 2] <= ArrivalTimesSorted[i + 1] + pois1[i]) {
       ArrivalTimesSorted[i + 2] <- ArrivalTimesSorted[i + 1] + pois1[i]
       }
-    WaitingTime <- ArrivalTimesSorted - ServeTime
+    WaitingTime <- ArrivalTimesSorted - ArrivalTimesSortedNew
     MeanWaitingTime[n] <- mean(WaitingTime) * 60
     }
   }
