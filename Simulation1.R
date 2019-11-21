@@ -6,7 +6,7 @@ CheckoutTime <- 10
 
 #Generate Poisson Process for Arrivals
 for (n in 1:7) {
-  TotalArrivals8to5 <- rpois(1, 4)
+  TotalArrivals8to9 <- rpois(1, 4)
   TotalArrivals9to10 <- rpois(1, 4)
   TotalArrivals10to11 <- rpois(1, 4)
   TotalArrivals11to12 <- rpois(1, 4)
