@@ -106,3 +106,29 @@ for (n in 1:7) {
   }
 mean(MeanWaitingTime)
 
+#Generating Beta Random Quantities
+
+#Use Accept/Reject to generate Beta(a, b) random variates.
+#We consider only the case a, b > 1 so that the density is bounded.
+#Implement this in R.
+
+#Give Desired Parameter Values (defaults = 2)
+a <- 2
+b <- 2
+#Rescaling Coefficient (default = 2)
+c <- 2
+
+#Give Desired Number of Repetitions (default = 1000000)
+x <- 1000000
+vector <- numeric()
+
+#Program
+for (i in 1:x) {
+  unif1 <- runif(1, 0, 1)
+  unif2 <- runif(1, 0, 1)
+  if (unif2 <= (dbeta(unif1, a, b) / ( c * dunif(unif1)))) {
+    vector[i] <- unif1
+    }
+  }
+vector <- vector[!is.na(vector)]
+plot(density(vector))
