@@ -3,6 +3,7 @@
 #Replace With Desired Mean Checkout Times (Default = 10 Minutes)
 #Default is Poisson-Distributed Checkout Times
 CheckoutTime <- 10
+MeanWaitingTime <- numeric()
 
 #Generate Poisson Process for Arrivals
 for (n in 1:7) {
@@ -53,6 +54,7 @@ mean(MeanWaitingTime)
 
 #Replace With Desired Checkout Time (Default = 10 Minutes)
 CheckoutTime <- 10
+MeanWaitingTime <- numeric()
 
 #Generate Poisson Process
 for (n in 1:7) {
@@ -99,7 +101,8 @@ for (n in 1:7) {
       ArrivalTimesSorted[i + 2] <- ArrivalTimesSorted[i + 1] + pois1[i]
       }
     WaitingTime <- ArrivalTimesSorted - ArrivalTimesSortedNew
-    MeanWaitingTime[n] <- mean(WaitingTime) * 60
+    MeanWaitingTime[n] <- (mean(WaitingTime) * 60)
     }
   }
 mean(MeanWaitingTime)
+
