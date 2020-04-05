@@ -1,0 +1,172 @@
+#Simply place File in readRDS function and run Shiny App! Note: May require a memory upgrade until I find out how to make it lean
+payroll <- readRDS("./payroll.RDS")
+
+#Install Packages
+library(shiny)
+library(ggplot2)
+library(reshape2)
+library(gridExtra)
+library(scales)
+
+#Define UI
+ui <- fluidPage(    
+  titlePanel("Los Angeles City Payroll"),
+  tabsetPanel(
+       
+    tabPanel(h5("2"),
+      sidebarLayout(
+        mainPanel(h3("Total Payroll"), 
+          plotOutput("plot1")),
+        sidebarPanel(h4("Sean Campeau | Biostatistics M280"), hr(),
+          h5("These data were obtained from the website of the 
+          Controller of the City of Los Angeles. Variables include year,
+          department, job title, total pay, base pay, overtime pay, 
+          and other pay. 
+          Some entries have been modified for cleanliness and convenience. 
+          More information can be found at 
+          https://controllerdata.lacity.org/.")))),
+        
+    tabPanel(h5("3"),
+      sidebarLayout(
+        mainPanel(h3("Highest-Paid Employees"), 
+          plotOutput("plot2")),
+        sidebarPanel(
+          numericInput("obs", label = h5(
+            "Choose Number of Employees Desired in Table:"), 
+            10, min = 1, max = 15), 
+          selectInput("checkGroup2", label = h5("Choose Year:"), 
+            choices = list("2013" = 2013, "2014" = 2014, "2015" = 2015, 
+            "2016" = 2016, "2017" = 2017, "2018" = 2018), 
+            selected = "2017")))),
+        
+      tabPanel(h5("4"),
+        sidebarLayout(
+          mainPanel(h3("Highest-Earning Departments 
+            (Mean or Median Employee Salary)"), 
+            plotOutput("plot3")),
+          sidebarPanel(
+            numericInput("obs1", label = h5(
+              "Choose Number of Departments Desired in Plot:"), 
+              5, min = 1, max = 20),
+            selectInput("checkGroup3", label = h5("Choose Year:"), 
+              choices = list("2013" = 2013, "2014" = 2014, "2015" = 2015, 
+              "2016" = 2016, "2017" = 2017, "2018" = 2018), selected = 
+              "2017"), 
+            selectInput("radio", label = 
+              h5("Choose Central Tendency Measure:"), 
+              choices = list("Median" = "median", "Mean" = "mean"), selected = 
+              "median")))),
+
+      tabPanel(h5("5"),
+        sidebarLayout(
+          mainPanel(h3("Most-Costly Departments (Total Payroll)"), 
+            plotOutput("plot4")), 
+          sidebarPanel(
+            numericInput("obs2", label = h5(
+              "Choose Number of Departments Desired in Plot:"), 
+              5, min = 1, max = 20), 
+            selectInput("checkGroup4", label = h5("Choose Year:"), 
+              choices = list("2013" = 2013, "2014" = 2014, "2015" = 2015, 
+              "2016" = 2016, "2017" = 2017, "2018" = 2018), selected = 
+              "2017")))),
+        
+      tabPanel(h5("6"),
+        sidebarLayout(
+          mainPanel(h3("Least-Funded Departments (2013-2018)"), 
+            plotOutput("plot5")),
+          sidebarPanel(
+            numericInput("obs3", label = h5(
+              "Choose Number of Departments Desired in Table:"), 
+              5, min = 1, max = 15))))))
+
+#Define Server Function
+server <- function(input, output) {
+
+  output$plot1 <- renderPlot({
+    payroll <- payroll[payroll$Type %in% c("Other", "Base", "Overtime"), ]
+    payroll <- payroll[order(payroll$Type, rev(payroll$Type)), ]
+    ggplot(payroll,
+      aes(x = Year, y = Pay, colour = 
+      factor(Type, levels = c("Other", "Overtime", "Base")), 
+      fill = factor(Type, levels = c("Other", "Overtime", "Base")))) +
+      labs(fill = "Pay Type") +
+      labs(colour = "Pay Type") +
+      geom_col() + scale_y_continuous(labels = scales::dollar) +
+      xlab("Year") + ylab("Pay") + xlim(2012, 2019) +
+      scale_x_continuous(breaks = c(2013, 2014, 2015, 2016, 2017, 2018))})
+
+  output$plot2 <- renderPlot({
+    payroll <- dcast(payroll, ID + Dept + Title + Year ~ Type, 
+      value.var = "Pay")
+    payroll <- payroll[payroll$Year %in% input$checkGroup2, ]
+    payroll <- payroll[order(payroll$Total, decreasing = TRUE), ]
+    payroll <- head(payroll, n = input$obs)
+    payroll <- payroll[, c(2, 3, 5, 6, 7, 8)]
+    payroll$Base <- dollar(payroll$Base)
+    payroll$Overtime <- dollar(payroll$Overtime)
+    payroll$Other <- dollar(payroll$Other)
+    payroll$Total <- dollar(payroll$Total)
+    grid.table(payroll, cols = c("Department", "Title", "Base Pay", 
+      "Overtime Pay", "Other Pay", "Total Pay"), rows = NULL)})
+
+  output$plot3 <- renderPlot({
+    payroll <- dcast(payroll, ID + Dept + Title + Year ~ Type, 
+      value.var = "Pay")
+    payroll <- payroll[payroll$Year %in% input$checkGroup3, c(2, 5, 6, 7, 8)]
+    payroll <- aggregate(payroll[, c(2, 3, 4, 5)], 
+      by = list(payroll$Dept), FUN = input$radio)
+    payroll <- payroll[order(payroll$Total, decreasing = TRUE), ]
+    payroll <- head(payroll, n = input$obs1)
+    payroll <- melt(payroll, id = c("Group.1", "Total"))
+    ggplot(payroll, 
+      aes(x = reorder(Group.1, -value), y = value, colour = 
+      factor(variable, levels = c("Other", "Overtime", "Base")), 
+      fill = factor(variable, levels = c("Other", "Overtime", "Base")))) + 
+      labs(fill = "Pay Type") +
+      labs(colour = "Pay Type") +
+      geom_col() + xlab("Department") + 
+      scale_y_continuous(labels = scales::dollar) + 
+      theme(axis.text.x = element_text(angle = 45, hjust = 1, 
+      vjust = 1, size = 12)) + ylab("Pay")})
+
+  output$plot4 <- renderPlot({
+    payroll <- dcast(payroll, ID + Dept + Title + Year ~ Type, 
+      value.var = "Pay")
+    payroll <- payroll[payroll$Year %in% input$checkGroup3, c(2, 5, 6, 7, 8)]
+    payroll <- aggregate(payroll[, c(2, 3, 4, 5)], 
+      by = list(payroll$Dept), FUN = sum)
+    payroll <- payroll[order(payroll$Total, decreasing = TRUE), ]
+    payroll <- head(payroll, n = input$obs1)
+    payroll <- melt(payroll, id = c("Group.1", "Total"))
+    ggplot(payroll, aes(x = reorder(Group.1, -value), 
+      y = value, colour = 
+      factor(variable, levels = c("Other", "Overtime", "Base")), 
+      fill = factor(variable, levels = c("Other", "Overtime", "Base")))) + 
+      geom_col() + xlab("Department") + 
+      labs(fill = "Pay Type") +
+      labs(colour = "Pay Type") +
+      scale_y_continuous(labels = scales::dollar) + 
+      theme(axis.text.x = element_text(angle = 45, hjust = 1, 
+      vjust = 1, size = 12)) + ylab("Pay")})
+
+  output$plot5 <- renderPlot({
+    payroll <- dcast(payroll, ID + Dept + Title + Year ~ 
+      Type, value.var = "Pay")
+    payroll <- payroll[, c(2, 5, 6, 7, 8)]
+    payroll <- aggregate(payroll[, c(2, 3, 4, 5)], 
+      by = list(payroll$Dept), FUN = sum)
+    payroll <- payroll[order(payroll$Total, decreasing = FALSE), ]
+    payroll <- head(payroll, n = input$obs3)
+    payroll$Base <- as.integer(payroll$Base)
+    payroll$Overtime <- as.integer(payroll$Overtime)
+    payroll$Other <- as.integer(payroll$Other)
+    payroll$Total <- as.integer(payroll$Total)
+    payroll$Base <- dollar(payroll$Base)
+    payroll$Overtime <- dollar(payroll$Overtime)
+    payroll$Other <- dollar(payroll$Other)
+    payroll$Total <- dollar(payroll$Total)
+    grid.table(payroll, cols = c("Department", "Base Pay", 
+      "Overtime Pay", "Other Pay", "Total Pay"), rows = NULL)})}
+
+#Run Shiny App
+shinyApp(ui = ui, server = server)
